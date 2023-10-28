@@ -217,6 +217,65 @@ function displayBackgroundImage(type, bgPath) {
   }
 }
 
+// Display Slider of Movies or Shows
+async function displaySlider() {
+
+  const  { results } = await fetchAPIData('movie/now_playing');
+  console.log(results);
+  results.forEach((movie) => {
+    const div = document.createElement('div');
+    div.classList.add('swiper-slide');
+    div.innerHTML = `
+      <a href="movie-details.html?id=${movie.id}">
+        ${
+          movie.poster_path
+          ? 
+          `<img
+            src="https://image.tmdb.org/t/p/w500${movie.poster_path}"
+            class="card-img-top"
+            alt="${movie.name}"
+          />
+          ` : 
+          `<img
+            src="images/no-image.jpg"
+            class="card-img-top"
+            alt="${movie.name}"
+          />`
+        }
+      </a>
+      <h4 class="swiper-rating">
+        <i class="fas fa-star text-secondary"></i> ${movie.vote_average.toFixed(1)} / 10
+      </h4>
+    `;
+    
+    document.querySelector('.swiper-wrapper').appendChild(div);
+    initSwiper();
+  });
+}
+
+function initSwiper() {
+  const swiper = new Swiper('.swiper', {
+    slidesPerView: 1,
+    spaceBetween: 30,
+    freeMode: true,
+    loop: true,
+    autoplay: {
+      delay: 4000,
+      disableOnInteraction: false
+    },
+    breakpoints: {
+      576: {
+        slidesPerView: 2
+      },
+      768: {
+        slidesPerView: 3
+      },
+      1024: {
+        slidesPerView: 4
+      },
+    }
+  });
+}
 // Fetch data from TMDB API
 async function fetchAPIData(endpoint) {
   // IMPORTANT NOTE: In a REAL production we would not put the API Key here, because anyone could get your key
@@ -264,6 +323,7 @@ function init() {
     case '/':
     case '/index.html': // Will run if we are on / OR index.html
       console.log('Home');
+      displaySlider();
       displayPopularMovies();
       break;
     case '/shows.html':
