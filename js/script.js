@@ -44,7 +44,7 @@ async function displayPopularMovies() {
       </div>
     `;
     document.querySelector('#popular-movies').appendChild(div);
-  })
+  });
   // console.log(results);
 }
 
@@ -235,14 +235,54 @@ async function search() {
   global.search.type = urlParams.get('type');
   if(global.search.term !== '' && global.search.term !== null) {
     // @todo - make request and display results
-    const results = await searchAPIData();
-    console.log(results);
+    const { results, total_pages, page } = await searchAPIData();
+    if(results.length === 0) {
+      showAlert('No results found');
+      return;
+    }
+    displaySearchResults(results);
+    document.querySelector('#search-term').value = '';
+    // console.log(results);
   } else {
     // @todo - show an alert
     showAlert('Please enter a search term');
   }
-  console.log(global.search.term);
-  console.log(global.search.type);
+  // console.log(global.search.term);
+  // console.log(global.search.type);
+}
+
+// Function to display search results
+function displaySearchResults(results) {
+  results.forEach(result => {
+    const div = document.createElement('div');
+    div.classList.add('card');
+    div.innerHTML = `
+      <a href="${global.search.type}-details.html?id=${result.id}">
+        ${
+          result.poster_path
+          ? 
+          `<img
+            src="https://image.tmdb.org/t/p/w500${result.poster_path}"
+            class="card-img-top"
+            alt="${global.search.type === 'movie' ? result.title : result.name}"
+          />
+          ` : 
+          `<img
+            src="images/no-image.jpg"
+            class="card-img-top"
+            alt="${global.search.type === 'movie' ? result.title : result.name}"
+          />`
+        }
+      </a>
+      <div class="card-body">
+        <h5 class="card-title">${global.search.type === 'movie' ? result.title : result.name}</h5>
+        <p class="card-text">
+          <small class="text-muted">Release: ${global.search.type === 'movie' ? result.release_date : result.first_air_date}</small>
+        </p>
+      </div>
+    `;
+    document.querySelector('#search-results').appendChild(div);
+  });
 }
 
 // Display Slider of Movies or Shows
@@ -350,7 +390,7 @@ function highlightActiveLink() {
 }
 
 // Show Alert
-function showAlert(message, className) {
+function showAlert(message, className = 'alert-error') {
   const alertEl = document.createElement('div');
   alertEl.classList.add('alert', className);
   alertEl.appendChild(document.createTextNode(message));
