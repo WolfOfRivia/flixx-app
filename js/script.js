@@ -490,3 +490,5 @@ function init() {
 }
 
 document.addEventListener('DOMContentLoaded', init);
+
+console.log('Testing feature-1 branch');
